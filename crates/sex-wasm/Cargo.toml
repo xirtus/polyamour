@@ -1,0 +1,15 @@
+[package]
+name = "sex-wasm"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0-only"
+description = "Wasm guests for Polyamour and SexOS: wasmi with a small capability-confined host API"
+
+[dependencies]
+wasmi = { version = "2.0.0", default-features = false, features = ["validate", "libm", "portable-dispatch"] }
+
+[dev-dependencies]
+wat = "1"
+
+[features]
+sexos = []

@@ -3,7 +3,7 @@ name = "polyamour"
 version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0-only"
-description = "Polyamour: SexOS's native 3D suite, laid out and keyed like Blender so its users feel at home"
+description = "Polyamour: pure-Rust 3D creation suite for macOS, Linux, and SexOS, laid out and keyed like Blender"
 
 [[bin]]
 name = "polyamour"
@@ -12,9 +12,9 @@ path = "src/main.rs"
 [dependencies]
 sex-3d = { path = "../../crates/sex-3d" }
 sex-office = { path = "../../crates/sex-office" }
-
-[target.'cfg(target_os = "hermit")'.dependencies]
-sex-std = { path = "../../crates/sex-std" }
+polyamour-wasm = { path = "../../crates/polyamour-wasm" }
 
 [target.'cfg(not(target_os = "hermit"))'.dependencies]
 png = "0.18"
+winit = "0.30"
+softbuffer = "0.4"

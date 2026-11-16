@@ -1,0 +1,19 @@
+[workspace]
+resolver = "2"
+members = [
+    "apps/polyamour",
+    "crates/sex-3d",
+    "crates/sex-office",
+    "crates/sex-font",
+    "crates/sex-wasm",
+    "crates/polyamour-sdk",
+    "crates/polyamour-wasm",
+]
+default-members = ["apps/polyamour"]
+
+[profile.dev.package.wasmi]
+opt-level = 2
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

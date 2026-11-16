@@ -1,0 +1,65 @@
+name: CI & Native Desktop Builds
+
+on:
+  push:
+    branches: ["main", "master", "feat/**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  macos:
+    name: macOS (Apple Silicon)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Run workspace test suite
+        run: cargo test --release --workspace
+      - name: Verify WASM guest compiles for wasm32
+        run: cargo build --release --target wasm32-unknown-unknown --manifest-path crates/polyamour-wasm/guests/spiral_rust/Cargo.toml
+      - name: Package Polyamour.app
+        run: bash scripts/polyamour/package_macos.sh
+      - name: Smoke-test packaged binary (--wasm + --screenshot)
+        run: |
+          dist/Polyamour.app/Contents/MacOS/polyamour \
+            --wasm crates/polyamour-wasm/tests/spiral_rust.wasm \
+            --screenshot /tmp/polyamour-ci.png
+          test -s /tmp/polyamour-ci.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Polyamour-macos-arm64
+          path: dist/Polyamour-macos-*.zip
+
+  linux:
+    name: Linux (x86_64 Wayland & X11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Wayland & X11 headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libx11-dev libxcb1-dev libxkbcommon-dev libwayland-dev
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Run workspace test suite
+        run: cargo test --release --workspace
+      - name: Verify WASM guest compiles for wasm32
+        run: cargo build --release --target wasm32-unknown-unknown --manifest-path crates/polyamour-wasm/guests/spiral_rust/Cargo.toml
+      - name: Package Linux tarball
+        run: bash scripts/polyamour/package_linux.sh
+      - name: Smoke-test packaged binary (--wasm + --screenshot)
+        run: |
+          dist/polyamour-linux-x86_64/bin/polyamour \
+            --wasm crates/polyamour-wasm/tests/spiral_rust.wasm \
+            --screenshot /tmp/polyamour-ci.png
+          test -s /tmp/polyamour-ci.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: polyamour-linux-x86_64
+          path: dist/polyamour-linux-*.tar.gz
